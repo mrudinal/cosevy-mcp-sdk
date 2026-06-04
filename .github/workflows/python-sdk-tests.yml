@@ -1,0 +1,102 @@
+name: Python SDK Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_live_smoke:
+        description: "Run optional live COSEVI smoke test using repository secret COSEVI_AUTH_KEY"
+        required: false
+        default: false
+        type: boolean
+  #schedule:
+    # Monday 6:00 PM Costa Rica = Tuesday 00:00 UTC.
+    # - cron: "0 0 * * 2"
+
+permissions:
+  contents: read
+
+jobs:
+  python-sdk-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: python-sdk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare report directory
+        run: |
+          mkdir -p ../workflow-reports/python-sdk
+          {
+            echo "# Python SDK Test Report"
+            echo
+            echo "| Step | Result |"
+            echo "|---|---|"
+          } > ../workflow-reports/python-sdk/report.md
+      - name: Mask secret if present
+        env:
+          COSEVI_AUTH_KEY: ${{ secrets.COSEVI_AUTH_KEY }}
+        run: |
+          if [ -n "$COSEVI_AUTH_KEY" ]; then
+            echo "::add-mask::$COSEVI_AUTH_KEY"
+          fi
+      - name: Run Python SDK checks without stopping early
+        env:
+          RUN_LIVE_SMOKE: ${{ inputs.run_live_smoke || 'false' }}
+          COSEVI_AUTH_KEY: ${{ secrets.COSEVI_AUTH_KEY }}
+          COSEVI_BASE_URL: https://cosevi.cloudapi.junar.com/api/v2
+          COSEVI_REFERER: https://datosabiertos.csv.go.cr/
+        run: |
+          set +e
+          REPORT="../workflow-reports/python-sdk/report.md"
+          LOG="../workflow-reports/python-sdk/full.log"
+          FAILURES=0
+          run_check() {
+            local name="$1"
+            shift
+            echo "Running: $name" >> "$LOG"
+            "$@" >> "$LOG" 2>&1
+            local code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "| $name | PASS |" >> "$REPORT"
+            else
+              echo "| $name | FAIL (exit $code) |" >> "$REPORT"
+              FAILURES=$((FAILURES + 1))
+            fi
+            return 0
+          }
+          run_check "python -m pip install --upgrade pip build" python -m pip install --upgrade pip build
+          run_check "pip install -e .[dev]" pip install -e ".[dev]"
+          run_check "pytest" pytest
+          run_check "python -m build" python -m build
+          SHOULD_RUN_LIVE_SMOKE="false"
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            SHOULD_RUN_LIVE_SMOKE="true"
+          fi
+          if [ "${RUN_LIVE_SMOKE:-false}" = "true" ]; then
+            SHOULD_RUN_LIVE_SMOKE="true"
+          fi
+
+          if [ "$SHOULD_RUN_LIVE_SMOKE" = "true" ]; then
+            if [ -n "$COSEVI_AUTH_KEY" ]; then
+              run_check "live smoke" python examples/smoke_test.py
+            else
+              echo "| live smoke | SKIPPED - COSEVI_AUTH_KEY secret not configured |" >> "$REPORT"
+            fi
+          else
+            echo "| live smoke | SKIPPED - manual run_live_smoke=false |" >> "$REPORT"
+          fi
+          echo >> "$REPORT"
+          echo "## Summary" >> "$REPORT"
+          echo "- Total failed checks: $FAILURES" >> "$REPORT"
+          cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-sdk-test-report
+          path: workflow-reports/python-sdk
+          retention-days: 14

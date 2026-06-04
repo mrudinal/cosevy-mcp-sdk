@@ -1,0 +1,42 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# JavaScript / Node build artifacts
+node_modules/
+dist/
+build/
+coverage/
+
+# Python caches and environments
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+python-sdk/cosevi-py-env-*/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Test and tooling output
+.coverage
+htmlcov/
+
+# Archives and packaged outputs
+*.zip
+
+# Local IDE / assistant state
+.claude/
+.mcp.json
+.cursor/mcp.json
+.vscode/mcp.json
+.caveman/
+.codegraph/
+
+# Logs and temp files
+*.log
+*.tmp

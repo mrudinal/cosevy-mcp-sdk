@@ -1,0 +1,37 @@
+{
+  "name": "cosevi-open-data",
+  "version": "0.1.0",
+  "description": "TypeScript/JavaScript SDK for COSEVI Datos Abiertos / Junar API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrudinal/cosevy-mcp-sdk.git",
+    "directory": "javascript-sdk"
+  },
+  "homepage": "https://github.com/mrudinal/cosevy-mcp-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/mrudinal/cosevy-mcp-sdk/issues"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "smoke": "tsx examples/smoke-test.ts",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "release:check": "npm run build && npm test && npm audit --omit=dev && npm pack --dry-run"
+  },
+  "keywords": ["cosevi", "costa-rica", "datos-abiertos", "open-data", "junar", "sdk"],
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.0"
+  }
+}

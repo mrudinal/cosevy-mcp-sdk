@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cosevi-open-data"
+version = "0.1.0"
+description = "Python SDK for COSEVI Datos Abiertos / Junar API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "COSEVI Open Data Toolkit" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+  "httpx>=0.27",
+  "python-dotenv>=1.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/mrudinal/cosevy-mcp-sdk"
+Repository = "https://github.com/mrudinal/cosevy-mcp-sdk"
+Issues = "https://github.com/mrudinal/cosevy-mcp-sdk/issues"
+Changelog = "https://github.com/mrudinal/cosevy-mcp-sdk/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "respx>=0.21",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "build>=1.2",
+  "twine>=5.0"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cosevi_open_data"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

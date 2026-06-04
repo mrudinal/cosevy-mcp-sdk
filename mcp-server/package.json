@@ -1,0 +1,44 @@
+{
+  "name": "cosevi-open-data-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for COSEVI Datos Abiertos / Junar API",
+  "type": "module",
+  "bin": {
+    "cosevi-open-data-mcp": "dist/index.js"
+  },
+  "files": ["dist", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrudinal/cosevy-mcp-sdk.git",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://github.com/mrudinal/cosevy-mcp-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/mrudinal/cosevy-mcp-sdk/issues"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "inspector": "npx -y @modelcontextprotocol/inspector node dist/index.js",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/public-tools.test.ts tests/tools.unit.test.ts tests/schemas.test.ts tests/format.test.ts tests/env-config.test.ts",
+    "test:protocol": "vitest run tests/protocol.test.ts",
+    "lint": "tsc --noEmit",
+    "release:check": "npm run build && npm test && npm audit --omit=dev && npm pack --dry-run"
+  },
+  "keywords": ["mcp", "model-context-protocol", "cosevi", "costa-rica", "datos-abiertos", "open-data", "junar"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "cosevi-open-data": "file:../javascript-sdk",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.0"
+  }
+}
