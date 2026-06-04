@@ -1,33 +1,35 @@
 # COSEVI Open Data Toolkit
 
-Read-only toolkit for accessing Costa Rica **COSEVI Datos Abiertos** through the Junar v2 open-data API.
+[Español](README.md) | [English](README.en.md)
 
-This repository contains three packages:
+Kit de herramientas de solo lectura para acceder a **COSEVI Datos Abiertos** de Costa Rica a través de la API de datos abiertos Junar v2.
 
-* `javascript-sdk/` — Node.js / TypeScript SDK
-* `python-sdk/` — Python SDK
-* `mcp-server/` — MCP server built on top of the JavaScript SDK
+Este repositorio contiene tres paquetes:
 
-Repository URL: `https://github.com/mrudinal/cosevy-mcp-sdk`
+* `javascript-sdk/` — SDK para Node.js / TypeScript
+* `python-sdk/` — SDK para Python
+* `mcp-server/` — Servidor MCP construido sobre el SDK de JavaScript
 
-> Note: the repository name uses `cosevy-mcp-sdk`, but the toolkit targets COSEVI Datos Abiertos.
+URL del repositorio: `https://github.com/mrudinal/cosevy-mcp-sdk`
 
-## What this repository does
+> Nota: el nombre del repositorio usa `cosevy-mcp-sdk`, pero el toolkit está dirigido a COSEVI Datos Abiertos.
 
-This project gives developers and MCP clients a safe, read-only way to work with COSEVI open data.
+## Qué hace este repositorio
 
-With this repo you can:
+Este proyecto ofrece a desarrolladores y clientes MCP una forma segura y de solo lectura de trabajar con datos abiertos de COSEVI.
 
-* Search COSEVI/Junar open-data resources
-* Read datasets, datastreams, visualizations, dashboards, and portal stats
-* Query datastreams with filters, ordering, grouping, functions, formatting, and pagination
-* Use known COSEVI dashboard shortcuts for fatalities, accidents, infractions, licenses, and driving tests
-* Use the same COSEVI data through JavaScript, Python, or MCP tools
-* Test the MCP server locally without any LLM
+Con este repositorio puedes:
 
-All COSEVI/Junar operations in this repository are **read-only**.
+* Buscar recursos de datos abiertos de COSEVI/Junar
+* Leer datasets, datastreams, visualizaciones, dashboards y estadísticas del portal
+* Consultar datastreams con filtros, ordenamiento, agrupación, funciones, formato y paginación
+* Usar atajos de dashboards conocidos de COSEVI para fallecidos, accidentes, infracciones, licencias y pruebas de manejo
+* Usar los mismos datos de COSEVI desde JavaScript, Python o herramientas MCP
+* Probar el servidor MCP localmente sin ningún LLM
 
-## Architecture
+Todas las operaciones de COSEVI/Junar en este repositorio son **de solo lectura**.
+
+## Arquitectura
 
 ```text
 COSEVI / Junar API
@@ -37,33 +39,33 @@ JavaScript SDK       Python SDK
 MCP server
 ```
 
-* `javascript-sdk/` is the main TypeScript SDK and is also used internally by the MCP server.
-* `python-sdk/` mirrors the same read-only API surface for Python users.
-* `mcp-server/` registers safe MCP tools, validates inputs, and redacts/truncates tool output for LLM clients.
+* `javascript-sdk/` es el SDK principal de TypeScript y también es usado internamente por el servidor MCP.
+* `python-sdk/` replica la misma superficie de API de solo lectura para usuarios de Python.
+* `mcp-server/` registra herramientas MCP seguras, valida entradas y redacta/trunca la salida de herramientas para clientes LLM.
 
-## API coverage
+## Cobertura de la API
 
-The SDKs and MCP server cover the main COSEVI/Junar read-only surfaces:
+Los SDKs y el servidor MCP cubren las principales superficies de solo lectura de COSEVI/Junar:
 
-* Resource catalog search
-* Dataset metadata
-* Datastream metadata
-* Datastream data reads
-* Raw CSV/XML/JSONP datastream reads
-* Tableau HTML datastream endpoint
-* Visualization metadata
-* Dashboard metadata
-* Dashboard resource extraction
-* Portal stats
-* Known COSEVI dashboard helpers
-* Controlled pagination helpers
-* Safe query helpers
-* Rate limit / retry behavior
-* MCP unit, schema, and stdio protocol tests
+* Búsqueda en el catálogo de recursos
+* Metadatos de datasets
+* Metadatos de datastreams
+* Lecturas de datos de datastreams
+* Lecturas raw de datastreams en CSV/XML/JSONP
+* Endpoint Tableau HTML de datastreams
+* Metadatos de visualizaciones
+* Metadatos de dashboards
+* Extracción de recursos de dashboards
+* Estadísticas del portal
+* Helpers de dashboards conocidos de COSEVI
+* Helpers de paginación controlada
+* Helpers de consultas seguras
+* Comportamiento de rate limit / retry
+* Pruebas MCP unitarias, de esquema y de protocolo stdio
 
-See [API parity](docs/API_PARITY.md) and [MCP tools reference](docs/MCP_TOOLS.md) for the complete feature list.
+Consulta [API parity](docs/API_PARITY.md) y [MCP tools reference](docs/MCP_TOOLS.md) para la lista completa de funcionalidades.
 
-## Quick JavaScript example
+## Ejemplo rápido en JavaScript
 
 ```ts
 import { CoseviClient } from "cosevi-open-data";
@@ -86,7 +88,7 @@ const rows = await client.getDatastreamData("REGIS-DE-FALLE-EN-SITIO", {
 const dashboards = client.listKnownDashboards("fallecidos");
 ```
 
-## Quick Python example
+## Ejemplo rápido en Python
 
 ```python
 from cosevi_open_data import CoseviClient
@@ -110,20 +112,20 @@ rows = client.get_datastream_data(
 dashboards = client.list_known_dashboards("fallecidos")
 ```
 
-## Credential precedence
+## Precedencia de credenciales
 
-The SDKs and MCP server resolve `COSEVI_AUTH_KEY` and related config values in this order:
+Los SDKs y el servidor MCP resuelven `COSEVI_AUTH_KEY` y los valores de configuración relacionados en este orden:
 
-1. Explicit constructor/config value
-2. Local `.env` file in the package working directory
-3. OS environment variable on Windows, Linux, or macOS
-4. Default/missing value
+1. Valor explícito de constructor/configuración
+2. Archivo local `.env` en el directorio de trabajo del paquete
+3. Variable de entorno del sistema operativo en Windows, Linux o macOS
+4. Valor por defecto/faltante
 
-The `.env` value wins over any pre-existing OS environment variable.
+El valor de `.env` tiene prioridad sobre cualquier variable de entorno del sistema operativo ya existente.
 
-The key must never be committed. `.env` files are git-ignored.
+La llave nunca debe subirse al repositorio. Los archivos `.env` están ignorados por git.
 
-## Configuration values
+## Valores de configuración
 
 ```env
 COSEVI_AUTH_KEY=YOUR_KEY
@@ -131,11 +133,11 @@ COSEVI_BASE_URL=https://cosevi.cloudapi.junar.com/api/v2
 COSEVI_REFERER=https://datosabiertos.csv.go.cr/
 ```
 
-`COSEVI_BASE_URL` and `COSEVI_REFERER` have safe defaults, but `COSEVI_AUTH_KEY` is required for live COSEVI API calls.
+`COSEVI_BASE_URL` y `COSEVI_REFERER` tienen valores por defecto seguros, pero `COSEVI_AUTH_KEY` es requerido para llamadas en vivo a la API de COSEVI.
 
-## Local `.env` setup
+## Configuración local de `.env`
 
-From the repository root:
+Desde la raíz del repositorio:
 
 ```powershell
 Copy-Item .\javascript-sdk\.env.example .\javascript-sdk\.env
@@ -145,11 +147,11 @@ Copy-Item .\mcp-server\.env.example .\mcp-server\.env
 notepad .\javascript-sdk\.env
 ```
 
-Each package reads its own local `.env` when commands are run from that package folder.
+Cada paquete lee su propio `.env` local cuando los comandos se ejecutan desde la carpeta de ese paquete.
 
-## Windows PowerShell environment setup
+## Configuración de variables de entorno en Windows PowerShell
 
-For the current PowerShell session:
+Para la sesión actual de PowerShell:
 
 ```powershell
 $env:COSEVI_AUTH_KEY="your-key-here"
@@ -157,7 +159,7 @@ $env:COSEVI_BASE_URL="https://cosevi.cloudapi.junar.com/api/v2"
 $env:COSEVI_REFERER="https://datosabiertos.csv.go.cr/"
 ```
 
-For your Windows user account:
+Para tu cuenta de usuario de Windows:
 
 ```powershell
 [Environment]::SetEnvironmentVariable("COSEVI_AUTH_KEY", "your-key-here", "User")
@@ -165,9 +167,9 @@ For your Windows user account:
 [Environment]::SetEnvironmentVariable("COSEVI_REFERER", "https://datosabiertos.csv.go.cr/", "User")
 ```
 
-Open a new terminal after setting persistent user variables.
+Abre una terminal nueva después de configurar variables persistentes de usuario.
 
-## Linux / macOS environment setup
+## Configuración de variables de entorno en Linux / macOS
 
 ```bash
 export COSEVI_AUTH_KEY="your-key-here"
@@ -175,30 +177,30 @@ export COSEVI_BASE_URL="https://cosevi.cloudapi.junar.com/api/v2"
 export COSEVI_REFERER="https://datosabiertos.csv.go.cr/"
 ```
 
-## GitHub Actions secret setup
+## Configuración del secreto en GitHub Actions
 
-In GitHub:
+En GitHub:
 
 ```text
 Repository → Settings → Secrets and variables → Actions → New repository secret
 ```
 
-Secret name:
+Nombre del secreto:
 
 ```text
 COSEVI_AUTH_KEY
 ```
 
-Notes:
+Notas:
 
-* Unit tests do not require this secret.
-* Schema tests do not require this secret.
-* MCP protocol tests do not require this secret.
-* Scheduled workflows run every Monday at 6:00 PM Costa Rica time.
-* If `COSEVI_AUTH_KEY` is configured, scheduled workflows can run low-volume live smoke checks.
-* The key is masked with `::add-mask::` and must never be printed in logs or reports.
+* Las pruebas unitarias no requieren este secreto.
+* Las pruebas de esquema no requieren este secreto.
+* Las pruebas de protocolo MCP no requieren este secreto.
+* Los workflows programados se ejecutan todos los lunes a las 6:00 PM hora de Costa Rica.
+* Si `COSEVI_AUTH_KEY` está configurado, los workflows programados pueden ejecutar smoke checks en vivo de bajo volumen.
+* La llave se enmascara con `::add-mask::` y nunca debe imprimirse en logs o reportes.
 
-## Local testing
+## Pruebas locales
 
 ### JavaScript SDK
 
@@ -234,43 +236,43 @@ npm audit --omit=dev
 npm pack --dry-run
 ```
 
-## MCP testing without an LLM
+## Pruebas MCP sin un LLM
 
-The MCP server test suite does not require an LLM.
+La suite de pruebas del servidor MCP no requiere un LLM.
 
-It has three layers:
+Tiene tres capas:
 
-* **Unit tests** — mock the SDK client and verify tool delegation.
-* **Schema tests** — validate representative valid and invalid inputs.
-* **Protocol stdio tests** — start the MCP server over stdio and use the MCP client SDK to call tools.
+* **Pruebas unitarias** — hacen mock del cliente SDK y verifican la delegación de herramientas.
+* **Pruebas de esquema** — validan entradas representativas válidas e inválidas.
+* **Pruebas de protocolo stdio** — inician el servidor MCP sobre stdio y usan el MCP client SDK para invocar herramientas.
 
-The protocol test proves that the MCP server can start, list tools, and respond to safe tool calls without Claude Desktop, Claude Code, Cursor, VS Code, or any LLM.
+La prueba de protocolo demuestra que el servidor MCP puede iniciar, listar herramientas y responder a llamadas seguras sin Claude Desktop, Claude Code, Cursor, VS Code ni ningún LLM.
 
-See [MCP testing](docs/MCP_TESTING.md) for details.
+Consulta [MCP testing](docs/MCP_TESTING.md) para más detalles.
 
-## Optional live smoke tests
+## Smoke tests opcionales en vivo
 
-Live smoke tests are optional.
+Los smoke tests en vivo son opcionales.
 
-They:
+Estos:
 
-* require a real `COSEVI_AUTH_KEY`
-* should stay low-volume
-* are read-only
-* are not required for unit, schema, or protocol coverage
-* may be used manually or by scheduled GitHub workflows when the repository secret is configured
+* requieren un `COSEVI_AUTH_KEY` real
+* deben mantenerse de bajo volumen
+* son de solo lectura
+* no son requeridos para la cobertura unitaria, de esquema o de protocolo
+* pueden usarse manualmente o mediante workflows programados de GitHub cuando el secreto del repositorio está configurado
 
-Known low-volume test datastream:
+Datastream conocido para pruebas de bajo volumen:
 
 ```text
 REGIS-DE-FALLE-EN-SITIO
 ```
 
-## MCP server usage
+## Uso del servidor MCP
 
-This repository provides a local stdio MCP server, not a remote HTTP connector URL.
+Este repositorio proporciona un servidor MCP local por stdio, no una URL remota de conector HTTP.
 
-Build the SDK and MCP server:
+Construye el SDK y el servidor MCP:
 
 ```powershell
 cd ".\javascript-sdk"
@@ -282,15 +284,15 @@ npm install
 npm run build
 ```
 
-Run the MCP server directly:
+Ejecuta el servidor MCP directamente:
 
 ```powershell
 node .\dist\index.js
 ```
 
-Configure your MCP client to run the local `mcp-server` command.
+Configura tu cliente MCP para ejecutar el comando local de `mcp-server`.
 
-Example local MCP server command:
+Ejemplo de comando local de servidor MCP:
 
 ```json
 {
@@ -306,37 +308,37 @@ Example local MCP server command:
 }
 ```
 
-General MCP client setup examples are documented in [MCP client configs](docs/MCP_CLIENTS.md).
+Los ejemplos generales de configuración de clientes MCP están documentados en [MCP client configs](docs/MCP_CLIENTS.md).
 
 ## GitHub Actions
 
-There are three workflows:
+Existen tres workflows:
 
 * `.github/workflows/javascript-sdk-tests.yml`
 * `.github/workflows/python-sdk-tests.yml`
 * `.github/workflows/mcp-server-tests.yml`
 
-They:
+Estos:
 
-* support manual dispatch
-* run on the Monday 6:00 PM Costa Rica schedule using UTC fallback
-* do not stop early
-* always write Markdown summaries
-* always upload report artifacts
-* mask `COSEVI_AUTH_KEY` before any live smoke usage
-* can run low-volume live smoke checks when the secret is configured
+* soportan ejecución manual
+* se ejecutan en el horario de los lunes a las 6:00 PM hora de Costa Rica usando fallback UTC
+* no se detienen antes de tiempo
+* siempre escriben resúmenes en Markdown
+* siempre suben artifacts de reportes
+* enmascaran `COSEVI_AUTH_KEY` antes de cualquier uso en smoke tests en vivo
+* pueden ejecutar smoke checks en vivo de bajo volumen cuando el secreto está configurado
 
-See [GitHub Actions](docs/GITHUB_ACTIONS.md) for details.
+Consulta [GitHub Actions](docs/GITHUB_ACTIONS.md) para más detalles.
 
-## Test inventory
+## Inventario de pruebas
 
-Every public runtime method/export/tool is listed in:
+Cada método/export/tool público en runtime está listado en:
 
 * [Test inventory](docs/TEST_INVENTORY.md)
 
-This inventory maps each public surface to a direct test file and test name.
+Este inventario mapea cada superficie pública a un archivo de prueba directo y al nombre de su prueba.
 
-## Documentation
+## Documentación
 
 * [Test inventory](docs/TEST_INVENTORY.md)
 * [Test coverage](docs/TEST_COVERAGE.md)
@@ -350,10 +352,10 @@ This inventory maps each public surface to a direct test file and test name.
 * [Architecture](docs/ARCHITECTURE.md)
 * [Publishing](docs/PUBLISHING.md)
 
-## Safety
+## Seguridad
 
-This project is read-only.
+Este proyecto es de solo lectura.
 
-It does not implement COSEVI/Junar write operations, publishing operations, deletion operations, or administrative actions.
+No implementa operaciones de escritura de COSEVI/Junar, operaciones de publicación, operaciones de borrado ni acciones administrativas.
 
-The MCP server validates inputs, redacts secrets, and truncates large output before returning content to MCP clients.
+El servidor MCP valida entradas, redacta secretos y trunca salidas grandes antes de devolver contenido a clientes MCP.
