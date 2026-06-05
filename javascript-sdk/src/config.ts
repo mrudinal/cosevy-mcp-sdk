@@ -3,9 +3,7 @@ import { platform } from "node:os";
 import { resolve } from "node:path";
 import { parse as dotenvParse } from "dotenv";
 
-// -----------------------------------------------------------------------------
 // Constants
-// -----------------------------------------------------------------------------
 
 /** Default Junar/COSEVI API v2 base URL. */
 export const DEFAULT_COSEVI_BASE_URL = "https://cosevi.cloudapi.junar.com/api/v2";
@@ -13,9 +11,7 @@ export const DEFAULT_COSEVI_BASE_URL = "https://cosevi.cloudapi.junar.com/api/v2
 /** Default HTTP Referer header value sent with every request. */
 export const DEFAULT_COSEVI_REFERER = "https://datosabiertos.csv.go.cr/";
 
-// -----------------------------------------------------------------------------
 // Interfaces
-// -----------------------------------------------------------------------------
 
 /** Optional inputs that override config resolution. */
 export interface CoseviConfigInput {
@@ -50,9 +46,7 @@ export interface CoseviResolvedConfig {
   };
 }
 
-// -----------------------------------------------------------------------------
 // Dotenv parsing
-// -----------------------------------------------------------------------------
 
 /**
  * Reads and parses a .env file into a key/value map without mutating
@@ -68,9 +62,7 @@ function readDotenvValues(envPath: string): Record<string, string> {
   }
 }
 
-// -----------------------------------------------------------------------------
 // Config resolution
-// -----------------------------------------------------------------------------
 
 /**
  * Resolves the full COSEVI configuration using explicit precedence:

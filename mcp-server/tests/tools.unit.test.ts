@@ -1,7 +1,12 @@
+// This file tests MCP tool delegation and friendly query translation.
+
 import { describe, expect, it } from "vitest";
 import { DOMAIN_TOOL_GUIDS, registerCoseviTools } from "../src/tools.js";
 import { createMockClient, createServerRecorder } from "./helpers.js";
 
+// -----------------------------------------------------------------------------
+// Test suite
+// -----------------------------------------------------------------------------
 describe("mcp tool delegation", () => {
   it("registers all expected tools", () => {
     const server = createServerRecorder();
@@ -86,5 +91,61 @@ describe("mcp tool delegation", () => {
       await server.tools.get(toolName)!.handler({ includeResources: false });
       expect(client.getDashboard).toHaveBeenCalledWith(guid);
     }
+  });
+
+  it("translates human-friendly filters into Junar syntax when fieldMap is provided", async () => {
+    const server = createServerRecorder();
+    const client = createMockClient();
+    registerCoseviTools(server, client as any);
+
+    await server.tools.get("cosevi_query_datastream")!.handler({
+      guid: "DS1",
+      format: "pjson",
+      filters: ["Ano[=]2024"],
+      fieldMap: { Ano: "column0" },
+    });
+
+    expect(client.getDatastreamData).toHaveBeenCalledWith("DS1", expect.objectContaining({
+      format: "pjson",
+      filters: ["column0[==]2024"],
+      where: undefined,
+    }));
+  });
+
+  it("translates simple SQL-like where clauses into Junar filters and filter references", async () => {
+    const server = createServerRecorder();
+    const client = createMockClient();
+    registerCoseviTools(server, client as any);
+
+    await server.tools.get("cosevi_get_datastream_data")!.handler({
+      guid: "DS1",
+      format: "pjson",
+      where: "Ano = '2024' and Mes >= 6",
+      fieldMap: { Ano: "column0", Mes: "column1" },
+    });
+
+    expect(client.getDatastreamData).toHaveBeenCalledWith("DS1", expect.objectContaining({
+      format: "pjson",
+      filters: ["column0[==]2024", "column1[>=]6"],
+      where: "filter0 and filter1",
+    }));
+  });
+
+  it("returns a clear runtime error when a human field name has no fieldMap", async () => {
+    const server = createServerRecorder();
+    const client = createMockClient();
+    registerCoseviTools(server, client as any);
+
+    const result = await server.tools.get("cosevi_query_datastream")!.handler({
+      guid: "DS1",
+      format: "pjson",
+      where: "Ano = 2024",
+    });
+
+    expect(client.getDatastreamData).not.toHaveBeenCalledWith("DS1", expect.objectContaining({
+      filters: ["column0[==]2024"],
+    }));
+    expect(result.content[0].text).toContain("fieldMap");
+    expect(result.content[0].text).toContain("Ano");
   });
 });

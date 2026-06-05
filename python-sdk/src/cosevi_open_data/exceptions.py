@@ -1,3 +1,5 @@
+"""This file defines the Python SDK exception hierarchy."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -7,6 +9,9 @@ from typing import Any
 # -----------------------------------------------------------------------------
 
 
+# -----------------------------------------------------------------------------
+# Exception classes
+# -----------------------------------------------------------------------------
 class CoseviConfigError(Exception):
     """Raised for bad configuration (missing API key, invalid params)."""
 
@@ -19,6 +24,7 @@ class CoseviConfigError(Exception):
 class CoseviApiError(Exception):
     """Raised when the COSEVI/Junar API returns an error response."""
 
+    # Stores HTTP metadata alongside the API error message.
     def __init__(
         self,
         message: str,
@@ -52,6 +58,7 @@ class CoseviAuthError(CoseviApiError):
 class CoseviRateLimitError(CoseviApiError):
     """Raised on 429 rate limit responses."""
 
+    # Stores HTTP metadata alongside the API error message.
     def __init__(
         self,
         message: str,

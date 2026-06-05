@@ -1,3 +1,5 @@
+// This file tests MCP environment configuration behavior.
+
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -15,6 +17,9 @@ afterEach(() => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// Test suite
+// -----------------------------------------------------------------------------
 describe("mcp env config behavior", () => {
   it("reports sanitized source metadata from the javascript sdk config loader", async () => {
     tempDir = mkdtempSync(join(tmpdir(), "cosevi-mcp-env-"));

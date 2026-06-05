@@ -1,3 +1,5 @@
+"""This file tests the main Python client behavior and endpoint mapping."""
+
 import httpx
 import pytest
 import respx
@@ -5,8 +7,12 @@ import respx
 from cosevi_open_data import CoseviClient, CoseviConfigError
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 @respx.mock
 def test_constructor_env_config_and_base_url_override(monkeypatch: pytest.MonkeyPatch):
+    """Tests constructor env config and base url override."""
     monkeypatch.setenv("COSEVI_AUTH_KEY", "env-key")
     monkeypatch.setenv("COSEVI_BASE_URL", "https://env.example/api")
     monkeypatch.setenv("COSEVI_REFERER", "https://portal.example/")
@@ -24,6 +30,7 @@ def test_constructor_env_config_and_base_url_override(monkeypatch: pytest.Monkey
 
 
 def test_missing_api_key_raises():
+    """Tests missing api key raises."""
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setenv("COSEVI_AUTH_KEY", "")
     try:
@@ -35,6 +42,7 @@ def test_missing_api_key_raises():
 
 @respx.mock
 def test_referer_header_support():
+    """Tests referer header support."""
     route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/resources.json").mock(
         return_value=httpx.Response(200, json={"results": []})
     )
@@ -45,6 +53,7 @@ def test_referer_header_support():
 
 @respx.mock
 def test_search_resources_builds_expected_request():
+    """Tests search resources builds expected request."""
     route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/resources.json").mock(
         return_value=httpx.Response(200, json={"results": []})
     )
@@ -61,6 +70,7 @@ def test_search_resources_builds_expected_request():
 
 @respx.mock
 def test_metadata_endpoints_and_guid_encoding():
+    """Tests metadata endpoints and guid encoding."""
     dataset_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datasets/ABC%20DEF.json").mock(return_value=httpx.Response(200, json={"guid": "ABC DEF"}))
     datastream_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/REGIS-DE-FALLE-EN-SITIO.json").mock(return_value=httpx.Response(200, json={"guid": "REGIS-DE-FALLE-EN-SITIO"}))
     visualization_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/visualizations/VIS%201.json").mock(return_value=httpx.Response(200, json={"guid": "VIS 1"}))
@@ -84,6 +94,7 @@ def test_metadata_endpoints_and_guid_encoding():
 
 @respx.mock
 def test_datastream_data_mapping_and_accept_headers():
+    """Tests datastream data mapping and accept headers."""
     route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/REGIS-DE-FALLE-EN-SITIO/data.pjson").mock(
         return_value=httpx.Response(200, json=[{"row": 1}])
     )
@@ -116,6 +127,7 @@ def test_datastream_data_mapping_and_accept_headers():
 
 @respx.mock
 def test_raw_text_and_tableau_endpoints():
+    """Tests raw text and tableau endpoints."""
     csv_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/ABC/data.csv").mock(
         return_value=httpx.Response(200, text="a,b")
     )
@@ -144,6 +156,7 @@ def test_raw_text_and_tableau_endpoints():
 
 @respx.mock
 def test_extract_dashboard_resources_and_portal_stats():
+    """Tests extract dashboard resources and portal stats."""
     route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/stats/").mock(return_value=httpx.Response(200, json={"total": 1}))
     client = CoseviClient("test-key")
     resources = client.extract_dashboard_resources(
@@ -164,6 +177,7 @@ def test_extract_dashboard_resources_and_portal_stats():
 
 
 def test_reserved_extra_params_and_invalid_input_are_rejected():
+    """Tests reserved extra params and invalid input are rejected."""
     client = CoseviClient("test-key")
     with pytest.raises(CoseviConfigError, match="reserved key"):
         client.get_datastream_data("ABC", extra_params={"auth_key": "override"})

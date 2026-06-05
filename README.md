@@ -1,4 +1,4 @@
-# COSEVI Open Data Toolkit
+﻿# COSEVI Open Data Toolkit
 
 [Español](README.md) | [English](README.en.md)
 
@@ -13,6 +13,20 @@ Este repositorio contiene tres paquetes:
 URL del repositorio: `https://github.com/mrudinal/cosevy-mcp-sdk`
 
 > Nota: el nombre del repositorio usa `cosevy-mcp-sdk`, pero el toolkit está dirigido a COSEVI Datos Abiertos.
+
+## ¿Por qué este MCP en lugar de buscar manualmente?
+
+Un LLM sin herramientas solo puede describir datos de tránsito con información de su entrenamiento, que puede tener meses o años de antigüedad y nunca incluirá los registros individuales más recientes.
+
+| Situación | Navegación manual | Con este MCP |
+|---|---|---|
+| Datos recientes | Buscar en el sitio, descargar y parsear manualmente | Una llamada a `cosevi_get_datastream_data` |
+| Cruzar variables (provincia × rol × horario) | Abrir el archivo y filtrar en Excel o similar | El LLM analiza la respuesta estructurada directamente |
+| Repetir el análisis el mes siguiente | Volver a descargar y rehacer todo | Misma llamada, datos actualizados automáticamente |
+| Riesgo de citar datos incorrectos | Alto — el LLM puede “alucinar” estadísticas | Bajo — los datos vienen de la API oficial de COSEVI |
+| Tiempo hasta el resultado | 10–20 minutos de navegación y limpieza | Segundos |
+
+Los datos de COSEVI Datos Abiertos son **oficiales, estructurados y actualizados mensualmente** por el Consejo de Seguridad Vial de Costa Rica. Este MCP los pone directamente en el contexto del LLM, sin que el usuario tenga que descargar ni transformar nada.
 
 ## Qué hace este repositorio
 
@@ -119,7 +133,7 @@ Los SDKs y el servidor MCP resuelven `COSEVI_AUTH_KEY` y los valores de configur
 1. Valor explícito de constructor/configuración
 2. Archivo local `.env` en el directorio de trabajo del paquete
 3. Variable de entorno del sistema operativo en Windows, Linux o macOS
-4. Valor por defecto/faltante
+4. Valor por defecto o faltante
 
 El valor de `.env` tiene prioridad sobre cualquier variable de entorno del sistema operativo ya existente.
 
@@ -177,29 +191,6 @@ export COSEVI_BASE_URL="https://cosevi.cloudapi.junar.com/api/v2"
 export COSEVI_REFERER="https://datosabiertos.csv.go.cr/"
 ```
 
-## Configuración del secreto en GitHub Actions
-
-En GitHub:
-
-```text
-Repository → Settings → Secrets and variables → Actions → New repository secret
-```
-
-Nombre del secreto:
-
-```text
-COSEVI_AUTH_KEY
-```
-
-Notas:
-
-* Las pruebas unitarias no requieren este secreto.
-* Las pruebas de esquema no requieren este secreto.
-* Las pruebas de protocolo MCP no requieren este secreto.
-* Los workflows programados se ejecutan todos los lunes a las 6:00 PM hora de Costa Rica.
-* Si `COSEVI_AUTH_KEY` está configurado, los workflows programados pueden ejecutar smoke checks en vivo de bajo volumen.
-* La llave se enmascara con `::add-mask::` y nunca debe imprimirse en logs o reportes.
-
 ## Pruebas locales
 
 ### JavaScript SDK
@@ -236,38 +227,6 @@ npm audit --omit=dev
 npm pack --dry-run
 ```
 
-## Pruebas MCP sin un LLM
-
-La suite de pruebas del servidor MCP no requiere un LLM.
-
-Tiene tres capas:
-
-* **Pruebas unitarias** — hacen mock del cliente SDK y verifican la delegación de herramientas.
-* **Pruebas de esquema** — validan entradas representativas válidas e inválidas.
-* **Pruebas de protocolo stdio** — inician el servidor MCP sobre stdio y usan el MCP client SDK para invocar herramientas.
-
-La prueba de protocolo demuestra que el servidor MCP puede iniciar, listar herramientas y responder a llamadas seguras sin Claude Desktop, Claude Code, Cursor, VS Code ni ningún LLM.
-
-Consulta [MCP testing](docs/MCP_TESTING.md) para más detalles.
-
-## Smoke tests opcionales en vivo
-
-Los smoke tests en vivo son opcionales.
-
-Estos:
-
-* requieren un `COSEVI_AUTH_KEY` real
-* deben mantenerse de bajo volumen
-* son de solo lectura
-* no son requeridos para la cobertura unitaria, de esquema o de protocolo
-* pueden usarse manualmente o mediante workflows programados de GitHub cuando el secreto del repositorio está configurado
-
-Datastream conocido para pruebas de bajo volumen:
-
-```text
-REGIS-DE-FALLE-EN-SITIO
-```
-
 ## Uso del servidor MCP
 
 Este repositorio proporciona un servidor MCP local por stdio, no una URL remota de conector HTTP.
@@ -298,7 +257,7 @@ Ejemplo de comando local de servidor MCP:
 {
   "command": "node",
   "args": [
-    "C:\\Users\\maxry\\Desktop\\Github Repos\\cosevi-mcp-sdks\\mcp-server\\dist\\index.js"
+    "/ruta/al/repo/mcp-server/dist/index.js"
   ],
   "env": {
     "COSEVI_AUTH_KEY": "YOUR_KEY",
@@ -309,34 +268,6 @@ Ejemplo de comando local de servidor MCP:
 ```
 
 Los ejemplos generales de configuración de clientes MCP están documentados en [MCP client configs](docs/MCP_CLIENTS.md).
-
-## GitHub Actions
-
-Existen tres workflows:
-
-* `.github/workflows/javascript-sdk-tests.yml`
-* `.github/workflows/python-sdk-tests.yml`
-* `.github/workflows/mcp-server-tests.yml`
-
-Estos:
-
-* soportan ejecución manual
-* se ejecutan en el horario de los lunes a las 6:00 PM hora de Costa Rica usando fallback UTC
-* no se detienen antes de tiempo
-* siempre escriben resúmenes en Markdown
-* siempre suben artifacts de reportes
-* enmascaran `COSEVI_AUTH_KEY` antes de cualquier uso en smoke tests en vivo
-* pueden ejecutar smoke checks en vivo de bajo volumen cuando el secreto está configurado
-
-Consulta [GitHub Actions](docs/GITHUB_ACTIONS.md) para más detalles.
-
-## Inventario de pruebas
-
-Cada método/export/tool público en runtime está listado en:
-
-* [Test inventory](docs/TEST_INVENTORY.md)
-
-Este inventario mapea cada superficie pública a un archivo de prueba directo y al nombre de su prueba.
 
 ## Documentación
 

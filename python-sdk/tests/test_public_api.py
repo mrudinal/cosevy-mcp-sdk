@@ -1,3 +1,5 @@
+"""This file tests the public Python SDK exports."""
+
 from cosevi_open_data import (
     CoseviApiError,
     CoseviClient,
@@ -10,7 +12,11 @@ from cosevi_open_data import (
 )
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 def test_public_api_exports():
+    """Tests public api exports."""
     assert CoseviClient is not None
     assert CoseviApiError is not None
     assert DEFAULT_COSEVI_BASE_URL.startswith("https://")
@@ -22,6 +28,7 @@ def test_public_api_exports():
 
 
 def test_build_filter_and_sanitized_config(monkeypatch):
+    """Tests build filter and sanitized config."""
     monkeypatch.setenv("COSEVI_AUTH_KEY", "dummy-key")
     client = CoseviClient()
     assert CoseviClient.build_filter(1, ">=", 5) == "column1[>=]5"

@@ -1,6 +1,4 @@
-// -----------------------------------------------------------------------------
 // Base error
-// -----------------------------------------------------------------------------
 
 /** Thrown when SDK configuration is invalid (missing API key, bad options, etc.). */
 export class CoseviConfigError extends Error {
@@ -10,9 +8,7 @@ export class CoseviConfigError extends Error {
   }
 }
 
-// -----------------------------------------------------------------------------
 // API errors
-// -----------------------------------------------------------------------------
 
 /** Thrown when the COSEVI/Junar API returns a non-success HTTP response. */
 export class CoseviApiError extends Error {
@@ -34,9 +30,7 @@ export class CoseviApiError extends Error {
   }
 }
 
-// -----------------------------------------------------------------------------
 // Auth errors
-// -----------------------------------------------------------------------------
 
 /** Thrown when the API returns a 401 Unauthorized response. */
 export class CoseviAuthError extends CoseviApiError {
@@ -46,9 +40,7 @@ export class CoseviAuthError extends CoseviApiError {
   }
 }
 
-// -----------------------------------------------------------------------------
 // Rate limit errors
-// -----------------------------------------------------------------------------
 
 /** Thrown when the API returns a 429 Too Many Requests response and retries are exhausted. */
 export class CoseviRateLimitError extends CoseviApiError {

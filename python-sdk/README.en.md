@@ -2,23 +2,23 @@
 
 [Español](README.md) | [English](README.en.md)
 
-SDK de Python de solo lectura para la API de COSEVI Datos Abiertos / Junar.
+Read-only Python SDK for the COSEVI Datos Abiertos / Junar API.
 
-## Instalación
+## Setup
 
 ```bash
 pip install cosevi-open-data
 ```
 
-Configura la variable de entorno `COSEVI_AUTH_KEY` (nunca la hardcodees):
+Set the `COSEVI_AUTH_KEY` environment variable (never hardcode):
 
 ```bash
 export COSEVI_AUTH_KEY=your_key_here
 ```
 
-O usa un archivo local `.env` con `python-dotenv` (nunca lo subas al repositorio).
+Or use a local `.env` file with `python-dotenv` (never commit it).
 
-## Inicio rápido
+## Quick start
 
 ```python
 from cosevi_open_data import CoseviClient
@@ -102,7 +102,7 @@ for page in client.iter_datastream_data("MY-DS-GUID", max_pages=2):
 f = CoseviClient.build_filter("column0", ">", 100)  # "column0[>]100"
 ```
 
-## Opciones de configuración
+## Configuration options
 
 ```python
 client = CoseviClient(
@@ -117,14 +117,14 @@ client = CoseviClient(
 )
 ```
 
-Úsalo como context manager para asegurar el cierre correcto de conexiones:
+Use it as a context manager to ensure connection cleanup:
 
 ```python
 with CoseviClient() as client:
     data = client.get_datastream_data("MY-DS-GUID")
 ```
 
-## Tipos de error
+## Error types
 
 ```python
 from cosevi_open_data import CoseviConfigError, CoseviApiError, CoseviAuthError, CoseviRateLimitError
@@ -135,7 +135,7 @@ from cosevi_open_data import CoseviConfigError, CoseviApiError, CoseviAuthError,
 # CoseviRateLimitError: 429 rate limit (has .retry_after_seconds)
 ```
 
-## Claves conocidas de dashboards de COSEVI
+## Known COSEVI dashboard keys
 
 | Key | GUID | Category |
 |---|---|---|
@@ -152,9 +152,9 @@ from cosevi_open_data import CoseviConfigError, CoseviApiError, CoseviAuthError,
 | `consulta_infracciones_articulo` | CONSU-DE-INFRA-POR-ARTIC | infracciones |
 | `infracciones_detalle` | INFRA-46061 | infracciones |
 
-## Ejemplo real — análisis de fallecidos en tránsito (abril 2026)
+## Real-world example — analyzing April 2026 traffic fatalities
 
-Este análisis usa **datos reales y en vivo** de la API oficial de COSEVI, con registros de abril de 2026 que ningún modelo de lenguaje tiene en su entrenamiento.
+This analysis uses **live, real data** from the official COSEVI API: records from April 2026 that no language model has in training.
 
 ```python
 from collections import Counter
@@ -198,22 +198,22 @@ top2_prov = sum(v for k, v in by_province.items() if k in ("San José", "Alajuel
 print(f"San José + Alajuela: {top2_prov/total:.0%} de los fallecidos")  # 68%
 ```
 
-**Hallazgos con datos reales de abril 2026:**
+**Findings from real April 2026 data:**
 
-| Hallazgo | Valor |
+| Finding | Value |
 |---|---|
-| Provincia con más fallecidos | San José (7) |
-| San José + Alajuela combinados | **68 %** de los casos |
-| Rol más afectado | Conductor de motocicleta (47 %) |
-| Motociclistas en total (conductor + pasajero) | **58 %** |
-| Franja horaria más letal | 18:00–23:59 (37 %) |
-| Tipo de accidente más frecuente | Colisión entre vehículos (58 %) |
-| Proporción masculina | **79 %** |
+| Province with most fatalities | San José (7) |
+| San José + Alajuela combined | **68 %** of cases |
+| Most affected road user role | Motorcycle rider (47 %) |
+| Motorcyclists total (rider + passenger) | **58 %** |
+| Deadliest time slot | 18:00–23:59 (37 %) |
+| Most frequent crash type | Vehicle collision (58 %) |
+| Male share | **79 %** |
 
-> Estos resultados se obtienen en segundos. El equivalente manual — navegar a `datosabiertos.csv.go.cr`, descargar el dataset, abrirlo y cruzar cinco variables — toma 15–20 minutos.
+> These results arrive in seconds. The manual equivalent — going to `datosabiertos.csv.go.cr`, downloading the dataset, opening it, and cross-tabulating five variables — takes 15–20 minutes.
 
-## Pruebas
+## Tests
 
-La cobertura unitaria integral del SDK está mapeada en `../docs/TEST_COVERAGE.md`.
+Comprehensive SDK unit coverage is mapped in `../docs/TEST_COVERAGE.md`.
 
-Los detalles de workflows de GitHub están documentados en `../docs/GITHUB_ACTIONS.md`.
+GitHub workflow details are documented in `../docs/GITHUB_ACTIONS.md`.

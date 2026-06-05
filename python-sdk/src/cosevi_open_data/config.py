@@ -1,3 +1,5 @@
+"""This file resolves Python SDK configuration from arguments, .env, and the OS."""
+
 from __future__ import annotations
 
 import os
@@ -30,6 +32,9 @@ Source = Literal["constructor", ".env", "environment", "default", "missing"]
 # -----------------------------------------------------------------------------
 
 
+# -----------------------------------------------------------------------------
+# Configuration models
+# -----------------------------------------------------------------------------
 @dataclass(frozen=True)
 class CoseviResolvedConfig:
     """Fully resolved COSEVI configuration with per-value source metadata."""
@@ -61,6 +66,7 @@ class CoseviResolvedConfig:
 # -----------------------------------------------------------------------------
 
 
+# Resolves configuration from explicit arguments, .env, and OS variables.
 def resolve_cosevi_config(
     api_key: str | None = None,
     base_url: str | None = None,

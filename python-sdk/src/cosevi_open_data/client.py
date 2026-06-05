@@ -1,3 +1,5 @@
+"""This file implements the main Python client for the COSEVI API."""
+
 from __future__ import annotations
 
 import json
@@ -44,6 +46,10 @@ RESERVED_EXTRA_PARAM_PATTERNS = [
 ]
 
 
+# -----------------------------------------------------------------------------
+# Client helpers
+# -----------------------------------------------------------------------------
+# Removes auth_key from a URL before logging or raising errors.
 def _strip_auth_key(url: str) -> str:
     try:
         return re.sub(r"([&?])auth_key=[^&]*", r"\1auth_key=REDACTED", url)
@@ -51,10 +57,12 @@ def _strip_auth_key(url: str) -> str:
         return url
 
 
+# URL-encodes a Junar GUID for safe path usage.
 def encode_guid(guid: str) -> str:
     return quote(guid, safe="")
 
 
+# Appends indexed Junar query parameters such as filter0 or orderBy0.
 def append_indexed_params(params: dict[str, Any], prefix: str, values: Sequence[str] | None) -> None:
     if not values:
         return
@@ -62,6 +70,7 @@ def append_indexed_params(params: dict[str, Any], prefix: str, values: Sequence[
         params[f"{prefix}{index}"] = value
 
 
+# Appends indexed dashboard arguments such as pArgument0.
 def append_parameters(params: dict[str, Any], values: Sequence[str | int | float | bool] | None) -> None:
     if not values:
         return
@@ -69,6 +78,7 @@ def append_parameters(params: dict[str, Any], values: Sequence[str | int | float
         params[f"pArgument{index}"] = value
 
 
+# Rejects extra parameters that would override reserved Junar keys.
 def assert_no_reserved_extra_params(extra_params: Mapping[str, Any] | None) -> None:
     if not extra_params:
         return
@@ -77,6 +87,7 @@ def assert_no_reserved_extra_params(extra_params: Mapping[str, Any] | None) -> N
             raise CoseviConfigError(f"extra_params contains reserved key: {key}")
 
 
+# Validates a single Junar expression for emptiness, length, and unsafe characters.
 def validate_expression(value: str, label: str) -> None:
     trimmed = value.strip()
     if not trimmed:
@@ -87,6 +98,7 @@ def validate_expression(value: str, label: str) -> None:
         raise CoseviConfigError(f"{label} contains unsafe characters")
 
 
+# Validates a sequence of Junar expressions and enforces the hard cap.
 def validate_expression_list(values: Sequence[str] | None, label: str) -> None:
     if not values:
         return
@@ -96,6 +108,7 @@ def validate_expression_list(values: Sequence[str] | None, label: str) -> None:
         validate_expression(value, label)
 
 
+# Returns the HTTP Accept header value for a response format.
 def get_accept_header(format_name: str) -> str:
     if format_name == "csv":
         return "text/csv"
@@ -113,6 +126,7 @@ def get_accept_header(format_name: str) -> str:
 class CoseviClient:
     """Synchronous client for COSEVI Datos Abiertos / Junar API v2."""
 
+    # Initializes the client with resolved configuration and HTTP state.
     def __init__(
         self,
         api_key: str | None = None,
@@ -155,9 +169,11 @@ class CoseviClient:
         self._client = client or httpx.Client(timeout=timeout, headers=headers)
 
     @classmethod
+    # Creates a client using local .env and OS environment configuration.
     def from_env(cls) -> "CoseviClient":
         return cls()
 
+    # Returns a sanitized view of the active client configuration.
     def get_sanitized_config(self) -> dict[str, Any]:
         return {
             "hasApiKey": bool(self._api_key),
@@ -165,6 +181,7 @@ class CoseviClient:
             "hasReferer": bool(self._referer),
         }
 
+    # Returns where each configuration value was resolved from.
     def get_resolved_config_source(self) -> dict[str, Any]:
         return {
             "apiKeySource": self._config_source.api_key_source,
@@ -173,18 +190,22 @@ class CoseviClient:
             "os": self._config_source.os_name,
         }
 
+    # Closes client resources.
     def close(self) -> None:
         if self._owns_client:
             self._client.close()
 
+    # Enters the client context manager without altering client state.
     def __enter__(self) -> "CoseviClient":
         return self
 
+    # Exits the client context manager and closes owned resources.
     def __exit__(self, *_: object) -> None:
         self.close()
 
     # ── Rate limiting ──────────────────────────────────────────────────────
 
+    # Enforces the configured per-second request cap.
     def _enforce_rate_limit(self) -> None:
         now = time.monotonic()
         self._request_timestamps = [stamp for stamp in self._request_timestamps if stamp > now - 1.0]
@@ -196,6 +217,7 @@ class CoseviClient:
 
     # ── Core HTTP ──────────────────────────────────────────────────────────
 
+    # Reads the retry delay from Retry-After or falls back to the default delay.
     def _get_retry_delay(self, response: httpx.Response) -> float:
         retry_after = response.headers.get("retry-after")
         if retry_after is None:
@@ -205,21 +227,25 @@ class CoseviClient:
         except ValueError:
             return self.retry_delay_seconds
 
+    # Returns a JSON body when possible, otherwise falls back to raw text.
     def _safe_body(self, response: httpx.Response) -> Any:
         try:
             return response.json()
         except Exception:
             return response.text
 
+    # Validates and clamps a requested limit to the supported maximum.
     def _safe_limit(self, limit: int) -> int:
         if limit < 1:
             raise CoseviConfigError("limit must be >= 1")
         return min(limit, MAX_LIMIT)
 
+    # Validates that a required GUID is present and non-empty.
     def _assert_guid(self, guid: str) -> None:
         if not guid or not guid.strip():
             raise CoseviConfigError("guid is required")
 
+    # Executes a GET request with auth, retries, and normalized errors.
     def _request(self, path: str, *, params: Mapping[str, Any] | None = None, accept: str = "application/json") -> httpx.Response:
         merged: dict[str, Any] = {"auth_key": self._api_key}
         if params:
@@ -270,16 +296,19 @@ class CoseviClient:
             return response
         raise CoseviApiError("COSEVI/Junar request failed", safe_url=safe_url_base)
 
+    # Fetches and parses a JSON response from the API.
     def _get_json(self, path: str, *, params: Mapping[str, Any] | None = None, accept: str = "application/json") -> Any:
         response = self._request(path, params=params, accept=accept)
         return response.json()
 
+    # Fetches a text response from the API.
     def _get_text(self, path: str, *, params: Mapping[str, Any] | None = None, accept: str = "text/plain") -> str:
         response = self._request(path, params=params, accept=accept)
         return response.text
 
     # ── Shared param builder ───────────────────────────────────────────────
 
+    # Builds metadata list params.
     def _build_metadata_list_params(
         self,
         query: str | None,
@@ -297,6 +326,7 @@ class CoseviClient:
             params["order"] = order
         return params
 
+    # Builds datastream params.
     def _build_datastream_params(
         self,
         limit: int | None,
@@ -343,6 +373,7 @@ class CoseviClient:
 
     # ── Catalog search ─────────────────────────────────────────────────────
 
+    # Searches resources.
     def search_resources(
         self,
         query: str | None = None,
@@ -365,6 +396,7 @@ class CoseviClient:
 
     # ── Datasets ───────────────────────────────────────────────────────────
 
+    # Lists dataset metadata entries from the API.
     def list_datasets(
         self,
         query: str | None = None,
@@ -378,12 +410,14 @@ class CoseviClient:
             params=self._build_metadata_list_params(query, categories, order, limit or 20, offset or 0),
         )
 
+    # Retrieves one dataset metadata document by GUID.
     def get_dataset(self, guid: str) -> Any:
         self._assert_guid(guid)
         return self._get_json(f"/datasets/{encode_guid(guid)}.json")
 
     # ── Datastreams metadata ───────────────────────────────────────────────
 
+    # Lists datastream metadata entries from the API.
     def list_datastreams(
         self,
         query: str | None = None,
@@ -397,12 +431,14 @@ class CoseviClient:
             params=self._build_metadata_list_params(query, categories, order, limit or 20, offset or 0),
         )
 
+    # Retrieves one datastream metadata document by GUID.
     def get_datastream(self, guid: str) -> Any:
         self._assert_guid(guid)
         return self._get_json(f"/datastreams/{encode_guid(guid)}.json")
 
     # ── Datastream data ────────────────────────────────────────────────────
 
+    # Fetches structured datastream rows with Junar query options.
     def get_datastream_data(
         self,
         guid: str,
@@ -441,6 +477,7 @@ class CoseviClient:
             return response.text
         return self._get_json(path, params=params, accept=get_accept_header(format))
 
+    # Fetches raw datastream output such as CSV, XML, or JSONP.
     def get_datastream_raw_text(
         self,
         guid: str,
@@ -468,6 +505,7 @@ class CoseviClient:
             accept=get_accept_header(format),
         )
 
+    # Fetches the Tableau embed HTML for a datastream.
     def get_datastream_tableau(
         self,
         guid: str,
@@ -484,6 +522,7 @@ class CoseviClient:
 
     # ── Visualizations ─────────────────────────────────────────────────────
 
+    # Lists visualization metadata entries from the API.
     def list_visualizations(
         self,
         query: str | None = None,
@@ -497,12 +536,14 @@ class CoseviClient:
             params=self._build_metadata_list_params(query, categories, order, limit or 20, offset or 0),
         )
 
+    # Retrieves one visualization metadata document by GUID.
     def get_visualization(self, guid: str) -> Any:
         self._assert_guid(guid)
         return self._get_json(f"/visualizations/{encode_guid(guid)}.json")
 
     # ── Dashboards ─────────────────────────────────────────────────────────
 
+    # Lists dashboard metadata entries from the API.
     def list_dashboards(
         self,
         query: str | None = None,
@@ -516,11 +557,13 @@ class CoseviClient:
             params=self._build_metadata_list_params(query, categories, order, limit or 20, offset or 0),
         )
 
+    # Retrieves one dashboard metadata document by GUID.
     def get_dashboard(self, guid: str) -> Any:
         self._assert_guid(guid)
         return self._get_json(f"/dashboards/{encode_guid(guid)}.json")
 
     @staticmethod
+    # Extracts dashboard resources.
     def extract_dashboard_resources(
         dashboard: Mapping[str, Any],
         resource_types: Sequence[str] | None = None,
@@ -539,6 +582,7 @@ class CoseviClient:
 
     # ── Portal stats ───────────────────────────────────────────────────────
 
+    # Fetches high-level portal statistics from the API.
     def get_portal_stats(
         self,
         days: int | None = None,
@@ -577,12 +621,15 @@ class CoseviClient:
 
     # ── Known dashboards ───────────────────────────────────────────────────
 
+    # Returns the built-in list of known COSEVI dashboards.
     def list_known_dashboards(self, category: str | None = None) -> list[KnownCoseviDashboard]:
         return list_known_dashboards(category)
 
+    # Returns one built-in known dashboard by key or GUID.
     def get_known_dashboard(self, key_or_guid: str) -> KnownCoseviDashboard | None:
         return get_known_dashboard(key_or_guid)
 
+    # Fetches live dashboard data for one known dashboard entry.
     def get_known_dashboard_data(self, key_or_guid: str) -> Any:
         entry = get_known_dashboard(key_or_guid)
         if not entry:
@@ -591,6 +638,7 @@ class CoseviClient:
 
     # ── Discovery helper ───────────────────────────────────────────────────
 
+    # Discovers resources by topic.
     def discover_resources_by_topic(
         self,
         topic: str,
@@ -607,6 +655,7 @@ class CoseviClient:
 
     # ── Pagination helpers ─────────────────────────────────────────────────
 
+    # Iterates through search result pages with hard safety caps.
     def iter_resources(
         self,
         query: str | None = None,
@@ -628,6 +677,7 @@ class CoseviClient:
             if len(items) < page_size:
                 break
 
+    # Iterates through datastream pages with hard safety caps.
     def iter_datastream_data(
         self,
         guid: str,
@@ -647,6 +697,7 @@ class CoseviClient:
     # ── Static helper ──────────────────────────────────────────────────────
 
     @staticmethod
+    # Builds filter.
     def build_filter(column: int | str, operator: str, value: str | int | float) -> str:
         allowed = {"==", ">", "<", "!=", "contains", ">=", "<="}
         if operator not in allowed:

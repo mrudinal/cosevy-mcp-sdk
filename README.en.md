@@ -1,4 +1,4 @@
-# COSEVI Open Data Toolkit
+﻿# COSEVI Open Data Toolkit
 
 [Español](README.md) | [English](README.en.md)
 
@@ -119,7 +119,7 @@ The SDKs and MCP server resolve `COSEVI_AUTH_KEY` and related config values in t
 1. Explicit constructor/config value
 2. Local `.env` file in the package working directory
 3. OS environment variable on Windows, Linux, or macOS
-4. Default/missing value
+4. Default or missing value
 
 The `.env` value wins over any pre-existing OS environment variable.
 
@@ -177,29 +177,6 @@ export COSEVI_BASE_URL="https://cosevi.cloudapi.junar.com/api/v2"
 export COSEVI_REFERER="https://datosabiertos.csv.go.cr/"
 ```
 
-## GitHub Actions secret setup
-
-In GitHub:
-
-```text
-Repository → Settings → Secrets and variables → Actions → New repository secret
-```
-
-Secret name:
-
-```text
-COSEVI_AUTH_KEY
-```
-
-Notes:
-
-* Unit tests do not require this secret.
-* Schema tests do not require this secret.
-* MCP protocol tests do not require this secret.
-* Scheduled workflows run every Monday at 6:00 PM Costa Rica time.
-* If `COSEVI_AUTH_KEY` is configured, scheduled workflows can run low-volume live smoke checks.
-* The key is masked with `::add-mask::` and must never be printed in logs or reports.
-
 ## Local testing
 
 ### JavaScript SDK
@@ -236,43 +213,11 @@ npm audit --omit=dev
 npm pack --dry-run
 ```
 
-## MCP testing without an LLM
-
-The MCP server test suite does not require an LLM.
-
-It has three layers:
-
-* **Unit tests** — mock the SDK client and verify tool delegation.
-* **Schema tests** — validate representative valid and invalid inputs.
-* **Protocol stdio tests** — start the MCP server over stdio and use the MCP client SDK to call tools.
-
-The protocol test proves that the MCP server can start, list tools, and respond to safe tool calls without Claude Desktop, Claude Code, Cursor, VS Code, or any LLM.
-
-See [MCP testing](docs/MCP_TESTING.md) for details.
-
-## Optional live smoke tests
-
-Live smoke tests are optional.
-
-They:
-
-* require a real `COSEVI_AUTH_KEY`
-* should stay low-volume
-* are read-only
-* are not required for unit, schema, or protocol coverage
-* may be used manually or by scheduled GitHub workflows when the repository secret is configured
-
-Known low-volume test datastream:
-
-```text
-REGIS-DE-FALLE-EN-SITIO
-```
-
-## MCP server usage
+## Using the MCP server
 
 This repository provides a local stdio MCP server, not a remote HTTP connector URL.
 
-Build the SDK and MCP server:
+Build the SDK and the MCP server:
 
 ```powershell
 cd ".\javascript-sdk"
@@ -298,7 +243,7 @@ Example local MCP server command:
 {
   "command": "node",
   "args": [
-    "C:\\Users\\maxry\\Desktop\\Github Repos\\cosevi-mcp-sdks\\mcp-server\\dist\\index.js"
+    "/ruta/al/repo/mcp-server/dist/index.js"
   ],
   "env": {
     "COSEVI_AUTH_KEY": "YOUR_KEY",
@@ -308,35 +253,7 @@ Example local MCP server command:
 }
 ```
 
-General MCP client setup examples are documented in [MCP client configs](docs/MCP_CLIENTS.md).
-
-## GitHub Actions
-
-There are three workflows:
-
-* `.github/workflows/javascript-sdk-tests.yml`
-* `.github/workflows/python-sdk-tests.yml`
-* `.github/workflows/mcp-server-tests.yml`
-
-They:
-
-* support manual dispatch
-* run on the Monday 6:00 PM Costa Rica schedule using UTC fallback
-* do not stop early
-* always write Markdown summaries
-* always upload report artifacts
-* mask `COSEVI_AUTH_KEY` before any live smoke usage
-* can run low-volume live smoke checks when the secret is configured
-
-See [GitHub Actions](docs/GITHUB_ACTIONS.md) for details.
-
-## Test inventory
-
-Every public runtime method/export/tool is listed in:
-
-* [Test inventory](docs/TEST_INVENTORY.md)
-
-This inventory maps each public surface to a direct test file and test name.
+General MCP client configuration examples are documented in [MCP client configs](docs/MCP_CLIENTS.md).
 
 ## Documentation
 

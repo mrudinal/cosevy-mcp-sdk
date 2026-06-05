@@ -1,3 +1,5 @@
+// This file tests MCP tool input schemas and validation rules.
+
 import { describe, expect, it } from "vitest";
 import { getCoseviToolDefinitions } from "../src/tools.js";
 import { createMockClient, parseSchema } from "./helpers.js";
@@ -35,6 +37,9 @@ const validInputs: Record<string, unknown> = {
   cosevi_get_datastream_pages: { guid: "DS1", format: "pjson", pageSize: 10, maxPages: 1 },
 };
 
+// -----------------------------------------------------------------------------
+// Test suite
+// -----------------------------------------------------------------------------
 describe("mcp tool schemas", () => {
   const definitions = getCoseviToolDefinitions(createMockClient() as any);
 
@@ -51,5 +56,15 @@ describe("mcp tool schemas", () => {
     expect(parseSchema(byName.get("cosevi_query_datastream")!.inputSchema, { guid: "DS1", where: "bad;drop" }).success).toBe(false);
     expect(parseSchema(byName.get("cosevi_get_resource_pages")!.inputSchema, { pageSize: 101, maxPages: 6 }).success).toBe(false);
     expect(parseSchema(byName.get("cosevi_get_dataset")!.inputSchema, {}).success).toBe(false);
+  });
+
+  it("accepts optional fieldMap for friendlier datastream filters", () => {
+    const byName = new Map(definitions.map((definition) => [definition.name, definition]));
+    expect(parseSchema(byName.get("cosevi_get_datastream_data")!.inputSchema, {
+      guid: "DS1",
+      format: "pjson",
+      where: "Ano = '2024'",
+      fieldMap: { Ano: "column0" },
+    }).success).toBe(true);
   });
 });

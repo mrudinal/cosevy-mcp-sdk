@@ -1,6 +1,11 @@
+// This file provides shared helpers for MCP server test suites.
+
 import { vi } from "vitest";
 import { z } from "zod";
 
+// -----------------------------------------------------------------------------
+// Public exports
+// -----------------------------------------------------------------------------
 export interface RegisteredTool {
   name: string;
   description: string;
@@ -8,6 +13,7 @@ export interface RegisteredTool {
   handler: (input: any) => Promise<any>;
 }
 
+/** Creates a lightweight tool-registration recorder for MCP server tests. */
 export function createServerRecorder() {
   const tools = new Map<string, RegisteredTool>();
   return {
@@ -18,6 +24,7 @@ export function createServerRecorder() {
   };
 }
 
+/** Creates a mocked COSEVI client with predictable test responses. */
 export function createMockClient() {
   return {
     getSanitizedConfig: vi.fn(() => ({ hasApiKey: true, baseUrl: "https://cosevi.cloudapi.junar.com/api/v2", hasReferer: true })),
@@ -34,7 +41,7 @@ export function createMockClient() {
     getVisualization: vi.fn(async () => ({ guid: "V1" })),
     listDashboards: vi.fn(async () => ({ results: [] })),
     getDashboard: vi.fn(async (guid: string) => ({ guid, resources: [{ type: "ds", guid: "A" }] })),
-    extractDashboardResources: vi.fn((_dashboard: any, _options?: any) => [{ type: "ds", guid: "A" }]),
+    extractDashboardResources: vi.fn((_dashboardResponse: any, _resourceOptions?: any) => [{ type: "ds", guid: "A" }]),
     getPortalStats: vi.fn(async () => ({ total: 1 })),
     listKnownDashboards: vi.fn(() => [{ key: "fallecidos_en_sitio", guid: "FALLE-EN-SITIO", category: "fallecidos", title: "Fallecidos en sitio" }]),
     getKnownDashboard: vi.fn(() => ({ key: "fallecidos_en_sitio", guid: "FALLE-EN-SITIO", category: "fallecidos", title: "Fallecidos en sitio" })),
@@ -49,6 +56,7 @@ export function createMockClient() {
   };
 }
 
+/** Parses one MCP input schema against a candidate value. */
 export function parseSchema(schema: Record<string, z.ZodTypeAny>, value: unknown) {
   return z.object(schema).safeParse(value);
 }

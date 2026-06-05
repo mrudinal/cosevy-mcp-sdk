@@ -1,7 +1,13 @@
+"""This file tests the Python SDK error classes."""
+
 from cosevi_open_data import CoseviApiError, CoseviAuthError, CoseviConfigError, CoseviRateLimitError
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 def test_error_classes_expose_expected_fields():
+    """Tests error classes expose expected fields."""
     config_error = CoseviConfigError("bad config")
     api_error = CoseviApiError("bad", 500, {"ok": False}, "https://example.test?auth_key=REDACTED")
     auth_error = CoseviAuthError("unauthorized", 401, "nope", "https://example.test?auth_key=REDACTED")

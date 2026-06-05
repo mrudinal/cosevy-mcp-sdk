@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# This script creates a compact source archive without local dependency caches.
+
 
 set -eu
 

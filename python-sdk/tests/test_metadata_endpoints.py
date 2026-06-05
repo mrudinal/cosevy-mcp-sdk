@@ -1,11 +1,17 @@
+"""This file tests Python metadata endpoint helpers."""
+
 import httpx
 import respx
 
 from cosevi_open_data import CoseviClient
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 @respx.mock
 def test_metadata_endpoints():
+    """Tests metadata endpoints."""
     respx.get("https://cosevi.cloudapi.junar.com/api/v2/datasets.json").mock(return_value=httpx.Response(200, json={"results": []}))
     dataset = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datasets/A%20B.json").mock(return_value=httpx.Response(200, json={"guid": "A B"}))
     respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams.json").mock(return_value=httpx.Response(200, json={"results": []}))

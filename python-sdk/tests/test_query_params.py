@@ -1,9 +1,15 @@
+"""This file tests Python query parameter mapping and safety checks."""
+
 import pytest
 
 from cosevi_open_data import CoseviClient, CoseviConfigError
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 def test_query_param_mapping(monkeypatch: pytest.MonkeyPatch):
+    """Tests query param mapping."""
     monkeypatch.setenv("COSEVI_AUTH_KEY", "test-key")
     client = CoseviClient()
 
@@ -33,6 +39,7 @@ def test_query_param_mapping(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_reserved_keys_and_unsafe_expressions_raise():
+    """Tests reserved keys and unsafe expressions raise."""
     client = CoseviClient("test-key")
     with pytest.raises(CoseviConfigError):
         client.get_datastream_data("ABC", extra_params={"auth_key": "bad"})

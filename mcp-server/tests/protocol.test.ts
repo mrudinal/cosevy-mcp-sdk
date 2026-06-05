@@ -1,7 +1,12 @@
+// This file tests the MCP stdio protocol behavior end to end.
+
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { describe, expect, it } from "vitest";
 
+// -----------------------------------------------------------------------------
+// Test suite
+// -----------------------------------------------------------------------------
 describe("mcp stdio protocol", () => {
   it("lists tools and calls safe tools over stdio without an llm", async () => {
     const transport = new StdioClientTransport({

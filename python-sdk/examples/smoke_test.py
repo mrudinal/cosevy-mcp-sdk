@@ -1,3 +1,5 @@
+"""This file runs a small authenticated smoke test for the Python SDK."""
+
 from dotenv import load_dotenv
 
 from cosevi_open_data import CoseviClient

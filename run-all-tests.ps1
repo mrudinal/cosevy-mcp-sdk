@@ -1,8 +1,11 @@
+# This script runs all local package installs, audits, builds, and tests.
+
 $ErrorActionPreference = "Continue"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $failures = 0
 
+# Runs each named test step and records failures for the final summary.
 function Invoke-Step {
     param(
         [string]$Name,

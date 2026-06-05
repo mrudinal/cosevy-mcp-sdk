@@ -1,8 +1,5 @@
-"""
-cosevi_open_data — Read-only Python SDK for the COSEVI / Junar v2 open-data API.
+"""This file re-exports the public Python SDK API surface."""
 
-Public surface: CoseviClient, resolve_cosevi_config, error classes, known dashboards, constants.
-"""
 from .client import CoseviClient
 from .config import (
     DEFAULT_COSEVI_BASE_URL,

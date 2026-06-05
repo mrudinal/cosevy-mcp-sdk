@@ -1,3 +1,5 @@
+"""This file defines shared literal types and allowed values for the Python SDK."""
+
 from typing import Literal
 
 DatastreamFormat = Literal["json", "pjson", "ajson", "jsonp", "csv", "xml", "xls"]

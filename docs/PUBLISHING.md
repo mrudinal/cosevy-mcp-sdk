@@ -16,7 +16,7 @@ Availability must be confirmed before any release.
 ## JavaScript SDK release-prep
 
 ```powershell
-cd "C:\Users\maxry\Desktop\Github Repos\cosevi-mcp-sdks\javascript-sdk"
+cd javascript-sdk
 npm install
 npm run build
 npm test
@@ -33,7 +33,7 @@ npm run release:check
 ## Python SDK release-prep
 
 ```powershell
-cd "C:\Users\maxry\Desktop\Github Repos\cosevi-mcp-sdks\python-sdk"
+cd python-sdk
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e .[dev]
@@ -44,11 +44,11 @@ python -m build
 ## MCP server release-prep
 
 ```powershell
-cd "C:\Users\maxry\Desktop\Github Repos\cosevi-mcp-sdks\javascript-sdk"
+cd javascript-sdk
 npm install
 npm run build
 
-cd "C:\Users\maxry\Desktop\Github Repos\cosevi-mcp-sdks\mcp-server"
+cd mcp-server
 npm install
 npm run build
 npm test

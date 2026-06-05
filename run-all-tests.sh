@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# This script runs all local package installs, audits, builds, and tests.
+
 
 set -u
 

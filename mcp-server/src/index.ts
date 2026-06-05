@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// This file boots the COSEVI MCP server and wires in the registered tools.
 
 // -----------------------------------------------------------------------------
 // Server initialization
@@ -17,6 +17,9 @@ import { registerCoseviTools } from "./tools.js";
  * Creates and returns a configured `McpServer` with all COSEVI tools registered.
  * Accepts an optional pre-built `CoseviClient` for testing.
  */
+// -----------------------------------------------------------------------------
+// Public exports
+// -----------------------------------------------------------------------------
 export function createCoseviMcpServer(client = new CoseviClient({
   maxRequestsPerSecond: parseInt(process.env.COSEVI_MAX_REQUESTS_PER_SECOND ?? "4", 10),
   retryDelayMs: parseInt(process.env.COSEVI_RETRY_DELAY_MS ?? "1200", 10),

@@ -1,6 +1,11 @@
+// This file tests MCP response formatting and redaction helpers.
+
 import { describe, expect, it } from "vitest";
 import { safeErrorText, safeJsonText, summarizeListResponse, toErrorContent, toRawTextContent, toTextContent } from "../src/format.js";
 
+// -----------------------------------------------------------------------------
+// Test suite
+// -----------------------------------------------------------------------------
 describe("safeJsonText", () => {
   it("redacts auth_key in objects", () => {
     const text = safeJsonText({ auth_key: "SECRET", data: "ok" });

@@ -1,4 +1,5 @@
-// -----------------------------------------------------------------------------
+// This file formats MCP responses, summaries, and safe error output.
+
 // Constants
 // -----------------------------------------------------------------------------
 
@@ -11,15 +12,15 @@ const DEFAULT_MAX_RESULTS = 20;
 // Secret redaction
 // -----------------------------------------------------------------------------
 
-/** Recursively redacts sensitive key values and detects circular references. */
+/** Recursively redacts sensitive keys and preserves circular-reference safety. */
 function redactObject(value: unknown, seen = new WeakSet<object>()): unknown {
   if (value === null || typeof value !== "object") return value;
   if (seen.has(value)) return "[Circular]";
   seen.add(value);
   if (Array.isArray(value)) return value.map((item) => redactObject(item, seen));
   const result: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-    result[k] = REDACT_KEYS.has(k) ? "[REDACTED]" : redactObject(v, seen);
+  for (const [entryKey, entryValue] of Object.entries(value as Record<string, unknown>)) {
+    result[entryKey] = REDACT_KEYS.has(entryKey) ? "[REDACTED]" : redactObject(entryValue, seen);
   }
   return result;
 }
@@ -97,10 +98,10 @@ export function summarizeListResponse(
   if (Array.isArray(value)) {
     items = value;
   } else if (value && typeof value === "object") {
-    const v = value as Record<string, unknown>;
-    items = Array.isArray(v.result) ? v.result :
-            Array.isArray(v.objects) ? v.objects :
-            Array.isArray(v.items) ? v.items : [];
+    const listResponse = value as Record<string, unknown>;
+    items = Array.isArray(listResponse.result) ? listResponse.result :
+            Array.isArray(listResponse.objects) ? listResponse.objects :
+            Array.isArray(listResponse.items) ? listResponse.items : [];
   }
   const total = (value as Record<string, unknown>)?.total ?? (value as Record<string, unknown>)?.count ?? items.length;
   const sliced = items.slice(0, maxResults);
@@ -112,12 +113,12 @@ export function summarizeListResponse(
 // Content helpers
 // -----------------------------------------------------------------------------
 
-/** Wraps a value in the standard MCP text content envelope after safe-JSON serialization. */
+/** Wraps JSON-safe text output in the standard MCP content envelope. */
 export function toTextContent(value: unknown): { content: Array<{ type: "text"; text: string }> } {
   return { content: [{ type: "text", text: safeJsonText(value) }] };
 }
 
-/** Wraps an error in the standard MCP text content envelope after safe-error formatting. */
+/** Wraps safe error text in the standard MCP content envelope. */
 export function toErrorContent(error: unknown): { content: Array<{ type: "text"; text: string }> } {
   return { content: [{ type: "text", text: `Error: ${safeErrorText(error)}` }] };
 }

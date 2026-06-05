@@ -1,3 +1,5 @@
+"""This file tests Python known-dashboard helpers."""
+
 import httpx
 import respx
 
@@ -9,7 +11,11 @@ from cosevi_open_data import (
 )
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 def test_top_level_known_dashboard_helpers():
+    """Tests top level known dashboard helpers."""
     assert len(KNOWN_COSEVI_DASHBOARDS) > 5
     assert all(item.category == "fallecidos" for item in list_known_dashboards("fallecidos"))
     assert get_known_dashboard("fallecidos_en_sitio").guid == "FALLE-EN-SITIO"
@@ -19,6 +25,7 @@ def test_top_level_known_dashboard_helpers():
 
 @respx.mock
 def test_client_known_dashboard_helpers_delegate_to_get_dashboard():
+    """Tests client known dashboard helpers delegate to get dashboard."""
     route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/dashboards/FALLE-EN-SITIO.json").mock(
         return_value=httpx.Response(200, json={"guid": "FALLE-EN-SITIO"})
     )

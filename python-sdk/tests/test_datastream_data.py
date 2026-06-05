@@ -1,11 +1,17 @@
+"""This file tests Python datastream data retrieval behavior."""
+
 import httpx
 import respx
 
 from cosevi_open_data import CoseviClient
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 @respx.mock
 def test_datastream_data_endpoints_and_accept_headers():
+    """Tests datastream data endpoints and accept headers."""
     json_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/ABC/data.json").mock(return_value=httpx.Response(200, json=[]))
     csv_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/ABC/data.csv").mock(return_value=httpx.Response(200, text="a,b"))
     xml_route = respx.get("https://cosevi.cloudapi.junar.com/api/v2/datastreams/ABC/data.xml").mock(return_value=httpx.Response(200, text="<xml/>"))

@@ -2,27 +2,27 @@
 
 [Español](README.md) | [English](README.en.md)
 
-SDK de TypeScript/JavaScript de solo lectura para la API de COSEVI Datos Abiertos / Junar.
+Read-only TypeScript/JavaScript SDK for the COSEVI Datos Abiertos / Junar API.
 
-## Instalación
+## Setup
 
 ```bash
 npm install cosevi-open-data
 ```
 
-Configura la variable de entorno `COSEVI_AUTH_KEY` (nunca la hardcodees):
+Set the `COSEVI_AUTH_KEY` environment variable (never hardcode):
 
 ```bash
 export COSEVI_AUTH_KEY=your_key_here
 ```
 
-O usa un archivo local `.env` (nunca lo subas al repositorio):
+Or use a local `.env` file (never commit it):
 
 ```env
 COSEVI_AUTH_KEY=your_key_here
 ```
 
-## Inicio rápido
+## Quick start
 
 ```ts
 import { CoseviClient } from "cosevi-open-data";
@@ -105,7 +105,7 @@ for await (const page of client.iterateDatastreamData("MY-DS-GUID", { maxPages: 
 const filter = CoseviClient.buildFilter("column0", ">", 100); // "column0[>]100"
 ```
 
-## Opciones de configuración
+## Configuration options
 
 ```ts
 const client = new CoseviClient({
@@ -121,7 +121,7 @@ const client = new CoseviClient({
 });
 ```
 
-## Tipos de error
+## Error types
 
 ```ts
 import { CoseviConfigError, CoseviApiError, CoseviAuthError, CoseviRateLimitError } from "cosevi-open-data";
@@ -132,7 +132,7 @@ import { CoseviConfigError, CoseviApiError, CoseviAuthError, CoseviRateLimitErro
 // CoseviRateLimitError: 429 rate limit (has .retryAfterSeconds)
 ```
 
-## Claves conocidas de dashboards de COSEVI
+## Known COSEVI dashboard keys
 
 | Key | GUID | Category |
 |---|---|---|
@@ -149,9 +149,9 @@ import { CoseviConfigError, CoseviApiError, CoseviAuthError, CoseviRateLimitErro
 | `consulta_infracciones_articulo` | CONSU-DE-INFRA-POR-ARTIC | infracciones |
 | `infracciones_detalle` | INFRA-46061 | infracciones |
 
-## Ejemplo real — análisis de fallecidos en tránsito (abril 2026)
+## Real-world example — analyzing April 2026 traffic fatalities
 
-Este es el tipo de consulta que este SDK fue diseñado para responder en segundos. Los datos son oficiales y en vivo, provenientes directamente de la API de COSEVI y correspondientes a abril de 2026, más allá del corte de entrenamiento de cualquier LLM.
+This is the kind of question this SDK was built to answer in seconds. The data is live and official: it came directly from the COSEVI API and reflects April 2026, beyond any LLM training cutoff.
 
 ```ts
 import { CoseviClient } from "cosevi-open-data";
@@ -197,14 +197,14 @@ console.table(bySlot);
 // 18:00–23:59: 7  06:00–11:59: 6  12:00–17:59: 3  00:00–05:59: 3
 ```
 
-**Hallazgos con datos reales de abril 2026:**
-- San José + Alajuela = **68 % de todos los fallecidos**
-- Motociclistas (conductor + pasajero) = **58 % de las víctimas**
-- Franja 18:00–23:59 = **ventana más peligrosa**
-- 79 % de las víctimas son hombres; el grupo de edad pico es 20–29
+**Findings from real April 2026 data:**
+- San José + Alajuela = **68 % of all fatalities**
+- Motorcyclists (rider + passenger) = **58 % of victims**
+- Evening slot 18:00–23:59 = **most dangerous window**
+- 79 % of victims are male; peak age group 20–29
 
-## Pruebas
+## Tests
 
-La cobertura unitaria integral del SDK está mapeada en `../docs/TEST_COVERAGE.md`.
+Comprehensive SDK unit coverage is mapped in `../docs/TEST_COVERAGE.md`.
 
-Los detalles de workflows de GitHub están documentados en `../docs/GITHUB_ACTIONS.md`.
+GitHub workflow details are documented in `../docs/GITHUB_ACTIONS.md`.

@@ -1,3 +1,5 @@
+# This script creates a compact source archive without local dependency caches.
+
 param(
     [string]$OutputZip = "cosevi-mcp-sdks-source.zip"
 )

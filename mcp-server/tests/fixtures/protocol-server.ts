@@ -1,3 +1,5 @@
+// This file provides a lightweight MCP server fixture for protocol tests.
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerCoseviTools } from "../../src/tools.js";

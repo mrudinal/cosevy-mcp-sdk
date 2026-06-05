@@ -14,9 +14,7 @@ import type {
 import { getKnownDashboard, listKnownDashboards, KNOWN_COSEVI_DASHBOARDS } from "./known-dashboards.js";
 import type { KnownCoseviDashboard } from "./known-dashboards.js";
 
-// -----------------------------------------------------------------------------
 // Constants and validation
-// -----------------------------------------------------------------------------
 
 const DEFAULT_BASE_URL = "https://cosevi.cloudapi.junar.com/api/v2";
 const DEFAULT_REFERER = "https://datosabiertos.csv.go.cr/";
@@ -41,12 +39,10 @@ const RESERVED_KEY_PATTERNS = [
   /^pArgument\d+$/,
 ];
 
-/** Returns true if the given key matches a reserved Junar query parameter pattern. */
 function isReservedKey(key: string): boolean {
-  return RESERVED_KEY_PATTERNS.some(p => p.test(key));
+  return RESERVED_KEY_PATTERNS.some((reservedPattern) => reservedPattern.test(key));
 }
 
-/** Validates a single filter/where/orderBy expression for length and unsafe characters. */
 function validateExpression(value: string, label: string): void {
   if (value.length === 0) throw new CoseviConfigError(`${label}: empty string not allowed`);
   if (value.includes(";")) throw new CoseviConfigError(`${label}: semicolons not allowed`);
@@ -55,24 +51,21 @@ function validateExpression(value: string, label: string): void {
   if (value.length > MAX_EXPRESSION_LENGTH) throw new CoseviConfigError(`${label}: expression too long (max ${MAX_EXPRESSION_LENGTH})`);
 }
 
-/** Validates an array of filter/sort/group expressions and enforces the max-array length cap. */
 function validateArray(arr: string[], label: string): void {
   if (arr.length > MAX_ARRAY_LENGTH) throw new CoseviConfigError(`${label}: too many values (max ${MAX_ARRAY_LENGTH})`);
-  arr.forEach((v, i) => validateExpression(v, `${label}[${i}]`));
+  arr.forEach((expressionValue, expressionIndex) => validateExpression(expressionValue, `${label}[${expressionIndex}]`));
 }
 
-/** Removes the `auth_key` query parameter from a URL so it is safe to log or include in error messages. */
 function stripAuthKey(url: string): string {
   try {
-    const u = new URL(url);
-    u.searchParams.delete("auth_key");
-    return u.toString();
+    const safeUrl = new URL(url);
+    safeUrl.searchParams.delete("auth_key");
+    return safeUrl.toString();
   } catch {
     return url.replace(/([&?])auth_key=[^&]*/g, "$1auth_key=REDACTED");
   }
 }
 
-/** Maps a datastream format (or "html") to the appropriate HTTP Accept header value. */
 function acceptHeaderForFormat(format: DatastreamFormat | "html"): string {
   switch (format) {
     case "json": case "pjson": case "ajson": return "application/json";
@@ -85,14 +78,11 @@ function acceptHeaderForFormat(format: DatastreamFormat | "html"): string {
   }
 }
 
-/** Returns a promise that resolves after `ms` milliseconds. Used for retry delays. */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// -----------------------------------------------------------------------------
 // CoseviClient class
-// -----------------------------------------------------------------------------
 
 /**
  * Read-only client for the COSEVI / Junar v2 open-data API.
@@ -142,7 +132,6 @@ export class CoseviClient {
     this.configSource = resolved.source;
   }
 
-  /** Creates a new `CoseviClient` reading all configuration from the environment. */
   static fromEnv(): CoseviClient {
     return new CoseviClient();
   }
@@ -182,7 +171,6 @@ export class CoseviClient {
   // Core HTTP
   // -----------------------------------------------------------------------------
 
-  /** Appends the `auth_key` to the given params and returns them. */
   private buildParams(extra: URLSearchParams): URLSearchParams {
     extra.set("auth_key", this.apiKey);
     return extra;
@@ -283,31 +271,31 @@ export class CoseviClient {
 
     // pArgumentN
     if (options.parameters?.length) {
-      options.parameters.forEach((v, i) => params.set(`pArgument${i}`, String(v)));
+      options.parameters.forEach((parameterValue, parameterIndex) => params.set(`pArgument${parameterIndex}`, String(parameterValue)));
     }
 
     // filters
     if (options.filters?.length) {
       validateArray(options.filters, "filters");
-      options.filters.forEach((v, i) => params.set(`filter${i}`, v));
+      options.filters.forEach((filterValue, filterIndex) => params.set(`filter${filterIndex}`, filterValue));
     }
 
     // orderBy
     if (options.orderBy?.length) {
       validateArray(options.orderBy, "orderBy");
-      options.orderBy.forEach((v, i) => params.set(`orderBy${i}`, v));
+      options.orderBy.forEach((orderByValue, orderByIndex) => params.set(`orderBy${orderByIndex}`, orderByValue));
     }
 
     // groupBy
     if (options.groupBy?.length) {
       validateArray(options.groupBy, "groupBy");
-      options.groupBy.forEach((v, i) => params.set(`groupBy${i}`, v));
+      options.groupBy.forEach((groupByValue, groupByIndex) => params.set(`groupBy${groupByIndex}`, groupByValue));
     }
 
     // functions
     if (options.functions?.length) {
       validateArray(options.functions, "functions");
-      options.functions.forEach((v, i) => params.set(`function${i}`, v));
+      options.functions.forEach((functionValue, functionIndex) => params.set(`function${functionIndex}`, functionValue));
     }
 
     // extraParams
@@ -331,7 +319,6 @@ export class CoseviClient {
   // Catalog search
   // -----------------------------------------------------------------------------
 
-  /** Searches the COSEVI open data catalog by keyword, resource type, and category. */
   async searchResources(input: SearchResourcesInput = {}): Promise<unknown> {
     const params = new URLSearchParams();
     params.set("limit", String(this.safeLimit(input.limit ?? 20)));
@@ -347,7 +334,6 @@ export class CoseviClient {
   // Dataset methods
   // -----------------------------------------------------------------------------
 
-  /** Lists datasets in the COSEVI catalog with optional filtering. */
   async listDatasets(options: ListOptions = {}): Promise<unknown> {
     const params = new URLSearchParams();
     params.set("limit", String(this.safeLimit(options.limit ?? 20)));
@@ -368,7 +354,6 @@ export class CoseviClient {
   // Datastream metadata
   // -----------------------------------------------------------------------------
 
-  /** Lists datastream metadata entries in the COSEVI catalog with optional filtering. */
   async listDatastreams(options: ListOptions = {}): Promise<unknown> {
     const params = new URLSearchParams();
     params.set("limit", String(this.safeLimit(options.limit ?? 20)));
@@ -421,7 +406,7 @@ export class CoseviClient {
     if (!guid) throw new CoseviConfigError("guid is required");
     const params = new URLSearchParams();
     if (options.parameters?.length) {
-      options.parameters.forEach((v, i) => params.set(`pArgument${i}`, String(v)));
+      options.parameters.forEach((parameterValue, parameterIndex) => params.set(`pArgument${parameterIndex}`, String(parameterValue)));
     }
     return this.getText(`/datastreams/${encodeURIComponent(guid)}/tableau.html`, params, "html");
   }
@@ -430,7 +415,6 @@ export class CoseviClient {
   // Visualization methods
   // -----------------------------------------------------------------------------
 
-  /** Lists visualization metadata entries in the COSEVI catalog with optional filtering. */
   async listVisualizations(options: ListOptions = {}): Promise<unknown> {
     const params = new URLSearchParams();
     params.set("limit", String(this.safeLimit(options.limit ?? 20)));
@@ -451,7 +435,6 @@ export class CoseviClient {
   // Dashboard methods
   // -----------------------------------------------------------------------------
 
-  /** Lists dashboard metadata entries in the COSEVI catalog with optional filtering. */
   async listDashboards(options: ListOptions = {}): Promise<unknown> {
     const params = new URLSearchParams();
     params.set("limit", String(this.safeLimit(options.limit ?? 20)));
@@ -474,13 +457,13 @@ export class CoseviClient {
    */
   extractDashboardResources(dashboard: unknown, options: { resourceTypes?: Array<"dt" | "ds" | "vz" | "db" | "html"> } = {}): unknown[] {
     if (!dashboard || typeof dashboard !== "object") return [];
-    const d = dashboard as Record<string, unknown>;
+    const dashboardRecord = dashboard as Record<string, unknown>;
     const resources: unknown[] = [];
-    const collect = (val: unknown) => {
-      if (Array.isArray(val)) {
-        for (const item of val) {
-          const t = (item as Record<string, unknown>)?.type as string | undefined;
-          if (!options.resourceTypes || !t || options.resourceTypes.includes(t as "dt")) {
+    const collectResources = (resourceList: unknown) => {
+      if (Array.isArray(resourceList)) {
+        for (const item of resourceList) {
+          const resourceType = (item as Record<string, unknown>)?.type as string | undefined;
+          if (!options.resourceTypes || !resourceType || options.resourceTypes.includes(resourceType as "dt")) {
             resources.push(item);
           }
         }
@@ -488,7 +471,7 @@ export class CoseviClient {
     };
     // Common Junar dashboard shapes
     for (const key of ["resources", "components", "items", "datasets", "datastreams", "visualizations"]) {
-      if (Array.isArray(d[key])) collect(d[key]);
+      if (Array.isArray(dashboardRecord[key])) collectResources(dashboardRecord[key]);
     }
     return resources;
   }
@@ -527,7 +510,6 @@ export class CoseviClient {
     return getKnownDashboard(keyOrGuid);
   }
 
-  /** Resolves a known dashboard by key/GUID and fetches its data from the API. */
   async getKnownDashboardData(keyOrGuid: string): Promise<unknown> {
     const entry = getKnownDashboard(keyOrGuid);
     if (!entry) throw new CoseviConfigError(`Unknown dashboard key or GUID: ${keyOrGuid}`);

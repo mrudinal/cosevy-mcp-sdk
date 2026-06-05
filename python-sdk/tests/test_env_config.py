@@ -1,4 +1,5 @@
-"""Tests for COSEVI config resolution and credential precedence."""
+"""This file tests Python SDK environment configuration resolution."""
+
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,9 @@ from cosevi_open_data import (
 from cosevi_open_data import config as config_module
 
 
+# -----------------------------------------------------------------------------
+# Helpers and test cases
+# -----------------------------------------------------------------------------
 def test_resolve_cosevi_config_prefers_constructor(monkeypatch: pytest.MonkeyPatch):
     """Verify that explicit constructor arguments win over .env and OS env."""
     env_path = Path("virtual.env")
@@ -89,6 +93,7 @@ def test_client_reports_sanitized_config_source(monkeypatch: pytest.MonkeyPatch)
 
 
 def test_cosevi_client_from_env_creates_client_from_resolved_environment(monkeypatch: pytest.MonkeyPatch):
+    """Tests cosevi client from env creates client from resolved environment."""
     monkeypatch.setenv("COSEVI_AUTH_KEY", "py-from-env-secret")
     monkeypatch.setenv("COSEVI_BASE_URL", "https://example.test/api/v2")
     monkeypatch.setenv("COSEVI_REFERER", "https://example.test/")
@@ -108,6 +113,7 @@ def test_cosevi_client_from_env_creates_client_from_resolved_environment(monkeyp
 
 
 def test_dotenv_wins_over_os_environment(monkeypatch: pytest.MonkeyPatch):
+    """Tests dotenv wins over os environment."""
     monkeypatch.setenv("COSEVI_AUTH_KEY", "os-secret")
     env_file = Path("virtual.env")
     monkeypatch.setattr(Path, "exists", lambda self: self == env_file)

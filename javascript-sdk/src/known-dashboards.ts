@@ -1,6 +1,4 @@
-// -----------------------------------------------------------------------------
 // Types
-// -----------------------------------------------------------------------------
 
 /** A known COSEVI dashboard entry with stable key and GUID. */
 export interface KnownCoseviDashboard {
@@ -16,9 +14,7 @@ export interface KnownCoseviDashboard {
   description?: string;
 }
 
-// -----------------------------------------------------------------------------
 // Dashboard registry
-// -----------------------------------------------------------------------------
 
 /** Complete list of known COSEVI dashboards with stable keys and GUIDs. */
 export const KNOWN_COSEVI_DASHBOARDS: KnownCoseviDashboard[] = [
@@ -36,9 +32,7 @@ export const KNOWN_COSEVI_DASHBOARDS: KnownCoseviDashboard[] = [
   { key: "infracciones_detalle", guid: "INFRA-46061", title: "Infracciones detalle", category: "infracciones" },
 ];
 
-// -----------------------------------------------------------------------------
 // Lookup helpers
-// -----------------------------------------------------------------------------
 
 /**
  * Returns all known dashboards, optionally filtered by category.
