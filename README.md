@@ -43,6 +43,45 @@ Con este repositorio puedes:
 
 Todas las operaciones de COSEVI/Junar en este repositorio son **de solo lectura**.
 
+## Requisitos
+
+Antes de usar cualquiera de los paquetes del repositorio, asegúrate de tener:
+
+* Node.js 20+ y `npm`
+* Python 3.10+
+* Una llave válida en `COSEVI_AUTH_KEY` para llamadas en vivo a la API
+
+No existe un `package.json` en la raíz del monorepo. Cada paquete se instala y ejecuta desde su propia carpeta.
+
+## Inicio rápido del repositorio
+
+Si quieres levantar o probar todo localmente desde cero:
+
+```powershell
+git clone https://github.com/mrudinal/cosevy-mcp-sdk.git
+cd .\cosevi-mcp-sdks
+
+Copy-Item .\javascript-sdk\.env.example .\javascript-sdk\.env
+Copy-Item .\python-sdk\.env.example .\python-sdk\.env
+Copy-Item .\mcp-server\.env.example .\mcp-server\.env
+```
+
+Luego agrega `COSEVI_AUTH_KEY` en los archivos `.env` o en variables de entorno del sistema y ejecuta las pruebas del paquete que te interese.
+
+## Estructura del repositorio
+
+```text
+.
+├─ javascript-sdk/   SDK para Node.js y TypeScript
+├─ python-sdk/       SDK para Python
+├─ mcp-server/       Servidor MCP sobre el SDK de JavaScript
+├─ docs/             Documentación técnica, clientes MCP y pruebas
+├─ run-all-tests.ps1 Runner local de validación en Windows
+└─ run-all-tests.sh  Runner local de validación en Linux/macOS
+```
+
+Si solo vas a consumir una pieza del toolkit, puedes entrar directamente al paquete correspondiente y seguir su `README.md`.
+
 ## Arquitectura
 
 ```text
@@ -193,6 +232,18 @@ export COSEVI_REFERER="https://datosabiertos.csv.go.cr/"
 
 ## Pruebas locales
 
+Para validar todo el repositorio de una vez también puedes usar los runners de la raíz:
+
+```powershell
+.\run-all-tests.ps1
+```
+
+```bash
+./run-all-tests.sh
+```
+
+Estos scripts instalan dependencias, compilan y ejecutan pruebas en `javascript-sdk`, `python-sdk` y `mcp-server`.
+
 ### JavaScript SDK
 
 ```powershell
@@ -275,6 +326,7 @@ Los ejemplos generales de configuración de clientes MCP están documentados en 
 * [Test coverage](docs/TEST_COVERAGE.md)
 * [MCP testing](docs/MCP_TESTING.md)
 * [MCP client configs](docs/MCP_CLIENTS.md)
+* [Configuration](docs/CONFIGURATION.md)
 * [MCP tools reference](docs/MCP_TOOLS.md)
 * [API notes](docs/API_NOTES.md)
 * [API parity](docs/API_PARITY.md)
@@ -282,6 +334,7 @@ Los ejemplos generales de configuración de clientes MCP están documentados en 
 * [Testing with API key](docs/TESTING_WITH_API_KEY.md)
 * [Architecture](docs/ARCHITECTURE.md)
 * [Publishing](docs/PUBLISHING.md)
+* [Roadmap](docs/ROADMAP.md)
 
 ## Seguridad
 

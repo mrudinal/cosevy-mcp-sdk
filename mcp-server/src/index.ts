@@ -6,6 +6,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { fileURLToPath } from "url";
 import { CoseviClient } from "cosevi-open-data";
 import { registerCoseviTools } from "./tools.js";
 
@@ -49,6 +50,6 @@ export async function startStdioServer() {
   await server.connect(transport);
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   await startStdioServer();
 }
